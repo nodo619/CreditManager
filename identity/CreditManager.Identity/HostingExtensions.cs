@@ -1,12 +1,8 @@
-using System.Reflection;
-using CreditManager.Identity;
 using CreditManager.Identity.Data;
 using CreditManager.Identity.Pages.Admin.ApiScopes;
 using CreditManager.Identity.Pages.Admin.Clients;
 using CreditManager.Identity.Pages.Admin.IdentityScopes;
-using Duende.IdentityServer.EntityFramework.DbContexts;
-using Duende.IdentityServer.EntityFramework.Mappers;
-using Duende.IdentityServer.EntityFramework.Options;
+using CreditManager.Identity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +26,7 @@ public static class HostingExtensions
             .AddEntityFrameworkStores<CreditManagerIdentityDbContext>()
             .AddDefaultTokenProviders();
 
+
         builder.Services.AddIdentityServer()
             .AddAspNetIdentity<CreditManagerUser>()
             .AddConfigurationStore(options =>
@@ -41,7 +38,8 @@ public static class HostingExtensions
             {
                 options.ConfigureDbContext = b => b.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
                     sql => sql.MigrationsAssembly(migrationsAssembly));
-            });
+            })
+            .AddProfileService<ProfileService>();
 
         {
             builder.Services.AddAuthorization(options =>
@@ -72,6 +70,7 @@ public static class HostingExtensions
 
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseCors("AllowFrontend");
         app.UseIdentityServer();
         app.UseAuthorization();
         

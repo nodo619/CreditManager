@@ -11,10 +11,24 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontend", policy =>
+        {
+            policy.WithOrigins("http://localhost:1841")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
+
     builder.Host.UseSerilog((ctx, lc) => lc
         .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
         .Enrich.FromLogContext()
         .ReadFrom.Configuration(ctx.Configuration));
+
+    // Add services to the container.
+    builder.Services.AddControllersWithViews();
 
     var app = builder
         .ConfigureServices()
@@ -29,6 +43,8 @@ try
         Log.Information("Done seeding database. Exiting.");
         return;
     }
+
+    app.UseCors("AllowFrontend");
 
     app.Run();
 }

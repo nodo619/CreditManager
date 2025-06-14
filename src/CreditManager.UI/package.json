@@ -1,0 +1,14 @@
+{
+  "name": "creditmanager-ui",
+  "version": "1.0.0",
+  "description": "Credit Manager UI",
+  "scripts": {
+    "start": "node server.js",
+    "build": "sencha app build",
+    "dev": "sencha app watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "connect-history-api-fallback": "^2.0.0"
+  }
+} 

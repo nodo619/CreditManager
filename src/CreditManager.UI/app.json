@@ -322,6 +322,17 @@
     "development": {
         "watch": {
             "delay": 250
+        },
+        "server": {
+            "rewrite": {
+                "signin-oidc": "index.html"
+            },
+            "proxy": {
+                "signin-oidc": {
+                    "path": "/signin-oidc",
+                    "target": "http://localhost:1841/index.html"
+                }
+            }
         }
     },
 

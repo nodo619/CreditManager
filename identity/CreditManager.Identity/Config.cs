@@ -1,61 +1,75 @@
-﻿using Duende.IdentityServer.Models;
-using System.Security.Claims;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace CreditManager.Identity;
 
 public static class Config
 {
     public static IEnumerable<IdentityResource> IdentityResources =>
-        new IdentityResource[]
+        new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
             new IdentityResources.Email(),
-            new IdentityResource("roles", "User roles", new[] { "role" })
+            new IdentityResource("roles", "User roles", new List<string> { "role" }),
+            new IdentityResource("userinfo", "User information", new List<string> { 
+                "FirstName",
+                "LastName"
+            })
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
-        new ApiScope[]
+        new List<ApiScope>
         {
-            new ApiScope("creditmanager.api", "Credit Manager API"),
-            new ApiScope("creditmanager.api.read", "Credit Manager API - Read Only"),
-            new ApiScope("creditmanager.api.write", "Credit Manager API - Write Access")
+            new ApiScope("creditmanager.api", "CreditManager API"),
+            new ApiScope("creditmanager.api.read", "CreditManager API Read Access"),
+            new ApiScope("creditmanager.api.write", "CreditManager API Write Access")
         };
 
     public static IEnumerable<Client> Clients =>
-        new Client[]
+        new List<Client>
         {
-            // Web Client
+            // ExtJS Web Client
             new Client
             {
-                ClientId = "creditmanager.web",
-                ClientName = "Credit Manager Web Client",
+                ClientId = "creditmanager.ui",
+                ClientName = "CreditManager UI",
                 AllowedGrantTypes = GrantTypes.Code,
                 RequirePkce = true,
                 RequireClientSecret = false,
-                RedirectUris = { "https://localhost:7002/signin-oidc" },
-                PostLogoutRedirectUris = { "https://localhost:7002/signout-callback-oidc" },
-                AllowedScopes = 
-                {
-                    "openid",
-                    "profile",
-                    "email",
+                RedirectUris = { "http://localhost:1841/signin-oidc.html" },
+                PostLogoutRedirectUris = { "http://localhost:1841/signout-callback-oidc.html" },
+                AllowedCorsOrigins = { "http://localhost:1841" },
+                AllowedScopes = { 
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    IdentityServerConstants.StandardScopes.Email,
                     "roles",
-                    "creditmanager.api"
+                    "userinfo",
+                    "creditmanager.api",
+                    "offline_access"
+                },
+                AllowOfflineAccess = true,
+                AccessTokenLifetime = 3600, // 1 hour
+                RefreshTokenUsage = TokenUsage.ReUse,
+                RefreshTokenExpiration = TokenExpiration.Sliding,
+                SlidingRefreshTokenLifetime = 2592000, // 30 days
+                RequireConsent = false,
+                AlwaysIncludeUserClaimsInIdToken = true,
+                AlwaysSendClientClaims = true,
+                Claims = new List<ClientClaim>
+                {
+                    new ClientClaim("role", "user")
                 }
             },
             // API Client
             new Client
             {
                 ClientId = "creditmanager.api",
-                ClientName = "Credit Manager API",
+                ClientName = "CreditManager API",
                 AllowedGrantTypes = GrantTypes.ClientCredentials,
                 ClientSecrets = { new Secret("secret".Sha256()) },
-                AllowedScopes = 
-                {
-                    "creditmanager.api.read",
-                    "creditmanager.api.write"
-                }
+                AllowedScopes = { "creditmanager.api.read", "creditmanager.api.write" }
             }
         };
 }

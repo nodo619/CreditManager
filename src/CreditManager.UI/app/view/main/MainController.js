@@ -15,5 +15,27 @@ Ext.define('CreditManager.UI.view.main.MainController', {
         if (choice === 'yes') {
             //
         }
+    },
+
+    init: function() {
+        var me = this;
+        var userInfo = CreditManager.UI.service.AuthService.getUserInfo();
+        
+        if (userInfo) {
+            console.log('User info in MainController:', userInfo);
+            var displayName = userInfo.name || 
+                            (userInfo.firstName && userInfo.lastName ? 
+                            `${userInfo.firstName} ${userInfo.lastName}` : 
+                            userInfo.email);
+            
+            var userInfoComponent = me.lookup('userInfo');
+            if (userInfoComponent) {
+                userInfoComponent.setHtml(displayName);
+            } else {
+                console.error('User info component not found');
+            }
+        } else {
+            console.error('No user info available');
+        }
     }
 });

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Processing Login</title>
+    <link rel="stylesheet" type="text/css" href="ext/classic/theme-classic/resources/theme-classic-all.css">
+    <script type="text/javascript" src="ext/ext-all.js"></script>
+    <script type="text/javascript" src="bootstrap.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <style>
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        .loading-message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #666;
+        }
+        .error-message {
+            color: red;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <img src="resources/images/loading.gif" alt="Loading...">
+        <div class="loading-message">Processing Login... Please wait while we complete your login.</div>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        function showError(message) {
+            console.error(message);
+            var errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Check if we've already processed this code
+        if (sessionStorage.getItem('code_processed')) {
+            console.log('Code already processed, redirecting to main app...');
+            window.location.replace('/');
+            throw new Error('Code already processed');
+        }
+
+        // Check if this is a back/forward navigation
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+            console.log('Back/forward navigation detected, redirecting to main app...');
+            window.location.replace('/');
+            throw new Error('Back/forward navigation detected');
+        }
+
+        // Initialize ExtJS and handle the callback
+        if (typeof Ext === 'undefined') {
+            showError('ExtJS failed to load. Please check the console for details.');
+            throw new Error('ExtJS not loaded');
+        }
+
+        console.log('ExtJS loaded, waiting for ready...');
+        
+        Ext.onReady(function() {
+            console.log('ExtJS ready event fired');
+            try {
+                console.log('Creating AuthService...');
+                if (typeof CreditManager === 'undefined' || typeof CreditManager.UI === 'undefined' || typeof CreditManager.UI.service === 'undefined') {
+                    throw new Error('CreditManager.UI namespace not found');
+                }
+                
+                var authService = Ext.create('CreditManager.UI.service.AuthService');
+                console.log('AuthService created successfully');
+                
+                if (!authService || typeof authService.handleCallback !== 'function') {
+                    throw new Error('AuthService not properly initialized');
+                }
+                
+                // Mark that we're processing the code
+                sessionStorage.setItem('code_processed', 'true');
+                console.log('Code processing flag set');
+                
+                console.log('Calling handleCallback...');
+                authService.handleCallback();
+            } catch (error) {
+                console.error('Error in callback handling:', error);
+                showError('Error processing login: ' + error.message);
+                // Clear any stored state
+                sessionStorage.removeItem('code_processed');
+                localStorage.removeItem('code_verifier');
+            }
+        });
+    </script>
+</body>
+</html> 

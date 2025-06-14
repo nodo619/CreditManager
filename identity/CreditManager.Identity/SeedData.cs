@@ -22,47 +22,82 @@ public class SeedData
 
     private static void EnsureSeedData(ConfigurationDbContext context)
     {
-        if (!context.Clients.Any())
-        {
-            Log.Debug("Clients being populated");
-            foreach (var client in Config.Clients.ToList())
-            {
-                context.Clients.Add(client.ToEntity());
-            }
-            context.SaveChanges();
-        }
-        else
-        {
-            Log.Debug("Clients already populated");
-        }
+        // Always update clients
+        Log.Debug("Updating clients");
+        var existingClients = context.Clients
+            .Include(c => c.AllowedGrantTypes)
+            .Include(c => c.RedirectUris)
+            .Include(c => c.PostLogoutRedirectUris)
+            .Include(c => c.AllowedScopes)
+            .Include(c => c.AllowedCorsOrigins)
+            .ToList();
+        var configuredClients = Config.Clients.ToList();
 
-        if (!context.IdentityResources.Any())
+        // Log existing clients
+        foreach (var client in existingClients)
         {
-            Log.Debug("IdentityResources being populated");
-            foreach (var resource in Config.IdentityResources.ToList())
-            {
-                context.IdentityResources.Add(resource.ToEntity());
-            }
-            context.SaveChanges();
+            Log.Debug("Removing existing client: {ClientId}", client.ClientId);
+            Log.Debug("  AllowedGrantTypes: {GrantTypes}", string.Join(", ", client.AllowedGrantTypes.Select(g => g.GrantType)));
+            Log.Debug("  RedirectUris: {RedirectUris}", string.Join(", ", client.RedirectUris.Select(r => r.RedirectUri)));
+            Log.Debug("  AllowedScopes: {Scopes}", string.Join(", ", client.AllowedScopes.Select(s => s.Scope)));
+            Log.Debug("  AllowedCorsOrigins: {CorsOrigins}", string.Join(", ", client.AllowedCorsOrigins.Select(c => c.Origin)));
+            context.Clients.Remove(client);
         }
-        else
-        {
-            Log.Debug("IdentityResources already populated");
-        }
+        context.SaveChanges();
 
-        if (!context.ApiScopes.Any())
+        // Add all configured clients
+        foreach (var client in configuredClients)
         {
-            Log.Debug("ApiScopes being populated");
-            foreach (var resource in Config.ApiScopes.ToList())
-            {
-                context.ApiScopes.Add(resource.ToEntity());
-            }
-            context.SaveChanges();
+            Log.Debug("Adding configured client: {ClientId}", client.ClientId);
+            Log.Debug("  AllowedGrantTypes: {GrantTypes}", string.Join(", ", client.AllowedGrantTypes));
+            Log.Debug("  RedirectUris: {RedirectUris}", string.Join(", ", client.RedirectUris));
+            Log.Debug("  AllowedScopes: {Scopes}", string.Join(", ", client.AllowedScopes));
+            Log.Debug("  AllowedCorsOrigins: {CorsOrigins}", string.Join(", ", client.AllowedCorsOrigins));
+            context.Clients.Add(client.ToEntity());
         }
-        else
+        context.SaveChanges();
+
+        // Always update identity resources
+        Log.Debug("Updating identity resources");
+        var existingResources = context.IdentityResources
+            .Include(r => r.UserClaims)
+            .ToList();
+        var configuredResources = Config.IdentityResources.ToList();
+
+        // Remove all existing identity resources
+        foreach (var resource in existingResources)
         {
-            Log.Debug("ApiScopes already populated");
+            context.IdentityResources.Remove(resource);
         }
+        context.SaveChanges();
+
+        // Add all configured identity resources
+        foreach (var resource in configuredResources)
+        {
+            context.IdentityResources.Add(resource.ToEntity());
+        }
+        context.SaveChanges();
+
+        // Always update API scopes
+        Log.Debug("Updating API scopes");
+        var existingScopes = context.ApiScopes
+            .Include(s => s.UserClaims)
+            .ToList();
+        var configuredScopes = Config.ApiScopes.ToList();
+
+        // Remove all existing API scopes
+        foreach (var scope in existingScopes)
+        {
+            context.ApiScopes.Remove(scope);
+        }
+        context.SaveChanges();
+
+        // Add all configured API scopes
+        foreach (var scope in configuredScopes)
+        {
+            context.ApiScopes.Add(scope.ToEntity());
+        }
+        context.SaveChanges();
 
         if (!context.IdentityProviders.Any())
         {
