@@ -1,27 +1,47 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
-using Duende.IdentityServer;
-using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using CreditManager.Identity.Data;
+using System.Security.Claims;
 
 namespace CreditManager.Identity.Pages.Home;
 
 [AllowAnonymous]
 public class Index : PageModel
 {
-    public Index(IdentityServerLicense? license = null)
+    private readonly UserManager<CreditManagerUser> _userManager;
+    private readonly SignInManager<CreditManagerUser> _signInManager;
+
+    public Index(
+        UserManager<CreditManagerUser> userManager,
+        SignInManager<CreditManagerUser> signInManager)
     {
-        License = license;
+        _userManager = userManager;
+        _signInManager = signInManager;
     }
 
-    public string Version
+    public string? UserName { get; set; }
+    public string? UserRole { get; set; }
+    public bool IsAuthenticated { get; set; }
+
+    public async Task<IActionResult> OnGetAsync()
     {
-        get => typeof(Duende.IdentityServer.Hosting.IdentityServerMiddleware).Assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            ?.InformationalVersion.Split('+').First()
-            ?? "unavailable";
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                UserName = $"{user.FirstName} {user.LastName}";
+                var roles = await _userManager.GetRolesAsync(user);
+                UserRole = roles.FirstOrDefault();
+                IsAuthenticated = true;
+            }
+        }
+
+        return Page();
     }
-    public IdentityServerLicense? License { get; }
 }
