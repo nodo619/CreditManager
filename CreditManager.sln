@@ -37,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreditManager.Identity", "i
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Processor", "Processor", "{070EEE1A-C5F0-4F62-BBD4-2C1340C624E5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreditRequest.Processor", "src\CreditRequest.Processor\CreditRequest.Processor.csproj", "{3E78D275-BD75-4A2E-AD3E-4A681754434B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CreditManager.Processor", "src\CreditManager.Processor\CreditManager.Processor.csproj", "{3E78D275-BD75-4A2E-AD3E-4A681754434B}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "CreditManager.UI", "src\CreditManager.UI\CreditManager.UI.esproj", "{4D61E59B-4259-46FE-9821-E0DD818F01E4}"
 EndProject

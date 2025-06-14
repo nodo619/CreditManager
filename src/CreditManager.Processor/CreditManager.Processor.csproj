@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-CreditRequest.Processor-f38e9dc8-dee2-4069-8ef8-25b7adbb21ce</UserSecretsId>
+        <RootNamespace>CreditRequest.Processor</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
