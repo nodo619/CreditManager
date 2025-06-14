@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+      <PackageReference Include="MassTransit.Abstractions" Version="8.5.0-develop.2309" />
       <PackageReference Include="MediatR" Version="12.5.0" />
     </ItemGroup>
 

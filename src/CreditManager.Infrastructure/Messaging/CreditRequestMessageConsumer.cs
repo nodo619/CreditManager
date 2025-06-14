@@ -35,6 +35,6 @@ public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
             Comments = message.Comments
         };
         
-        await _repository.AddAsync(creditRequest, context.CancellationToken);
+        //await _repository.AddAsync(creditRequest, context.CancellationToken);
     }
 }

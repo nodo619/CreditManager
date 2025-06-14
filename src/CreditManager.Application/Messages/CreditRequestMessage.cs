@@ -12,6 +12,5 @@ public class CreditRequestMessage
     
     public string Comments { get; set; } = null!;
 
-
     public DateTime RequestDate { get; set; }
 }
