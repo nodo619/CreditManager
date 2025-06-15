@@ -12,5 +12,9 @@ public class CreditRequestMessage
     
     public string Comments { get; set; } = null!;
 
+    public int CreditType { get; set; }
+
     public DateTime RequestDate { get; set; }
+
+    public TimeSpan Period { get; set; }
 }

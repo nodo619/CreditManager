@@ -13,7 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Feature\CreditRequests\Queries\" />
+      <Folder Include="Feature\CreditRequests\Queries\GetCreditRequests\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CreditManager.Domain\CreditManager.Domain.csproj" />
     </ItemGroup>
 
 </Project>

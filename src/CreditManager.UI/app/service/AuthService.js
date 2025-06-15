@@ -111,7 +111,7 @@ Ext.define('CreditManager.UI.service.AuthService', {
                 Ext.Msg.alert('Error', 'Code verifier not found');
                 return;
             }
-
+            
             // Exchange the code for tokens
             console.log('Initiating token exchange...');
             this.exchangeCodeForToken(code);
@@ -328,5 +328,18 @@ Ext.define('CreditManager.UI.service.AuthService', {
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=/g, '');
+    },
+
+    init: function() {
+        var me = this;
+        
+        // Check for stored auth code
+        var authCode = sessionStorage.getItem('auth_code');
+        var authState = sessionStorage.getItem('auth_state');
+        
+        if (authCode && authState) {
+            console.log('Found stored auth code, processing...');
+            me.handleCallback();
+        }
     }
 }); 

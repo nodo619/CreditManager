@@ -21,6 +21,10 @@ Ext.define('CreditManager.UI.view.main.MainController', {
         var me = this;
         var userInfo = CreditManager.UI.service.AuthService.getUserInfo();
         
+        var userInfoComponent = me.lookup('userInfo');
+        var loginLink = me.lookup('loginLink');
+        var logoutLink = me.lookup('logoutLink');
+        
         if (userInfo) {
             console.log('User info in MainController:', userInfo);
             var displayName = userInfo.name || 
@@ -28,14 +32,23 @@ Ext.define('CreditManager.UI.view.main.MainController', {
                             `${userInfo.firstName} ${userInfo.lastName}` : 
                             userInfo.email);
             
-            var userInfoComponent = me.lookup('userInfo');
-            if (userInfoComponent) {
-                userInfoComponent.setHtml(displayName);
-            } else {
-                console.error('User info component not found');
-            }
+            userInfoComponent.setHtml(displayName);
+            userInfoComponent.show();
+            logoutLink.show();
+            loginLink.hide();
         } else {
-            console.error('No user info available');
+            console.log('No user info available, showing login link');
+            userInfoComponent.hide();
+            logoutLink.hide();
+            loginLink.show();
         }
+    },
+
+    onLoginClick: function() {
+        CreditManager.UI.service.AuthService.login();
+    },
+
+    onLogoutClick: function() {
+        CreditManager.UI.service.AuthService.logout();
     }
 });

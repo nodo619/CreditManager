@@ -7,5 +7,7 @@ public record CreateCreditRequestCommand(
     Guid CustomerId,
     decimal Amount,
     string CurrencyCode,
-    string? Comments
+    string? Comments,
+    int CreditType,
+    TimeSpan Period
     ) : IRequest<Guid>;

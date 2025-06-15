@@ -1,4 +1,6 @@
 using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
+using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
+using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,5 +21,29 @@ public class CreditRequestsController : ApiController
     {
         var id = await Sender.Send(command);
         return Ok(id);
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(CreditRequestDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CreditRequestDto>> GetCreditRequest(Guid id)
+    {
+        try
+        {
+            var creditRequest = await Sender.Send(new GetCreditRequestQuery(id));
+            return Ok(creditRequest);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<CreditRequestDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<CreditRequestDto>>> GetCreditRequests()
+    {
+        var creditRequests = await Sender.Send(new GetCreditRequestsQuery());
+        return Ok(creditRequests);
     }
 }

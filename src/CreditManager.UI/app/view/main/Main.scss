@@ -5,18 +5,46 @@
     line-height: 24px;
 }
 
+.main-toolbar {
+    background: #2c3e50;
+    padding: 0 20px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
 .user-info {
-    color: #fff !important;
+    color: #fff;
     font-size: 14px;
     line-height: 24px;
     padding: 5px 15px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    margin: 0 10px;
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    z-index: 100;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin-right: 15px;
+    font-weight: 500;
+}
+
+.login-link, .logout-link {
+    .x-btn-inner {
+        color: #fff;
+        font-size: 14px;
+    }
+
+    .x-btn {
+        background: transparent;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+}
+
+.logout-link {
+    margin-left: 15px;
+    .x-btn-inner {
+        color: #e74c3c;
+    }
 } 

@@ -16,9 +16,12 @@ public static class PersistenceServiceRegistration
         services.AddDbContext<CreditManagerDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("CreditManager"))
         );
-        
+
         services.AddScoped(typeof(IAsyncRepository<,>), typeof(BaseRepository<,>));
-        
+        services.AddScoped<ICreditReadRepository, CreditReadRepository>();
+
+        services.AddSingleton<DapperContext>();
+
         return services;
     }
 }

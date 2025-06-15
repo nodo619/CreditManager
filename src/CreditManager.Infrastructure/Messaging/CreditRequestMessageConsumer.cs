@@ -24,12 +24,14 @@ public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
         {
             return;
         }
-        
+
         var creditRequest = new CreditRequest
         {
             Id = message.Id,
             CustomerId = message.CustomerId,
             Amount = message.Amount,
+            CreditType = (CreditType)message.CreditType,
+            Period = message.Period,
             CurrencyCode = message.CurrencyCode,
             Status = CreditRequestStatus.Pending,
             Comments = message.Comments

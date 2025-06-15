@@ -26,9 +26,7 @@ Ext.define('CreditManager.UI.view.main.Main', {
             align: 'stretchmax'
         },
         title: {
-            bind: {
-                text: '{name}'
-            },
+            text: 'Credit Manager',
             flex: 0
         },
         iconCls: 'fa-th-list'
@@ -37,15 +35,30 @@ Ext.define('CreditManager.UI.view.main.Main', {
     dockedItems: [{
         xtype: 'toolbar',
         dock: 'top',
+        cls: 'main-toolbar',
         items: [{
             xtype: 'component',
             reference: 'userInfo',
             cls: 'user-info',
             html: 'Loading...',
-            margin: '0 10 0 0',
-            style: {
-                color: '#fff',
-                fontWeight: 'bold'
+            hidden: true
+        }, {
+            xtype: 'button',
+            reference: 'loginLink',
+            cls: 'login-link',
+            text: 'Login',
+            hidden: true,
+            listeners: {
+                click: 'onLoginClick'
+            }
+        }, {
+            xtype: 'button',
+            reference: 'logoutLink',
+            cls: 'logout-link',
+            text: 'Logout',
+            hidden: true,
+            listeners: {
+                click: 'onLogoutClick'
             }
         }]
     }],

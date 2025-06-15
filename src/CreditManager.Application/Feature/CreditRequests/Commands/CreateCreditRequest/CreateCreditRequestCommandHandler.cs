@@ -20,6 +20,8 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
             Id = Guid.NewGuid(),
             Amount = request.Amount,
             Comments = request.Comments,
+            Period = request.Period,
+            CreditType = request.CreditType,
             CurrencyCode = request.CurrencyCode,
             CustomerId = request.CustomerId,
             RequestDate = DateTime.Now

@@ -5,8 +5,8 @@
     <title>Processing Login</title>
     <link rel="stylesheet" type="text/css" href="ext/classic/theme-classic/resources/theme-classic-all.css">
     <script type="text/javascript" src="ext/ext-all.js"></script>
+    <script type="text/javascript" src="ext/classic/theme-classic/theme-classic.js"></script>
     <script type="text/javascript" src="bootstrap.js"></script>
-    <script type="text/javascript" src="app.js"></script>
     <style>
         .loading-container {
             display: flex;
@@ -56,42 +56,53 @@
             throw new Error('Back/forward navigation detected');
         }
 
-        // Initialize ExtJS and handle the callback
-        if (typeof Ext === 'undefined') {
-            showError('ExtJS failed to load. Please check the console for details.');
-            throw new Error('ExtJS not loaded');
+        // Wait for all scripts to be loaded
+        function waitForScripts(callback) {
+            if (typeof Ext !== 'undefined' && 
+                typeof Ext.onReady === 'function' && 
+                typeof CreditManager !== 'undefined' && 
+                typeof CreditManager.UI !== 'undefined' && 
+                typeof CreditManager.UI.service !== 'undefined' &&
+                typeof CreditManager.UI.service.AuthService !== 'undefined') {
+                console.log('All required scripts loaded');
+                callback();
+            } else {
+                console.log('Waiting for scripts to load...');
+                setTimeout(function() {
+                    waitForScripts(callback);
+                }, 100);
+            }
         }
 
-        console.log('ExtJS loaded, waiting for ready...');
-        
-        Ext.onReady(function() {
-            console.log('ExtJS ready event fired');
-            try {
-                console.log('Creating AuthService...');
-                if (typeof CreditManager === 'undefined' || typeof CreditManager.UI === 'undefined' || typeof CreditManager.UI.service === 'undefined') {
-                    throw new Error('CreditManager.UI namespace not found');
+        // Initialize ExtJS and handle the callback
+        waitForScripts(function() {
+            console.log('ExtJS loaded, waiting for ready...');
+            
+            Ext.onReady(function() {
+                console.log('ExtJS ready event fired');
+                try {
+                    console.log('Getting AuthService...');
+                    var authService = CreditManager.UI.service.AuthService;
+                    console.log('AuthService retrieved successfully');
+                    
+                    if (!authService || typeof authService.handleCallback !== 'function') {
+                        throw new Error('AuthService not properly initialized');
+                    }
+                    
+                    // Mark that we're processing the code
+                    sessionStorage.setItem('code_processed', 'true');
+                    console.log('Code processing flag set');
+                    
+                    console.log('Calling handleCallback...');
+                    authService.handleCallback();
+                } catch (error) {
+                    console.error('Error in callback handling:', error);
+                    showError('Error processing login: ' + error.message);
+                    // Clear any stored state
+                    sessionStorage.removeItem('code_processed');
+                    localStorage.removeItem('code_verifier');
                 }
-                
-                var authService = Ext.create('CreditManager.UI.service.AuthService');
-                console.log('AuthService created successfully');
-                
-                if (!authService || typeof authService.handleCallback !== 'function') {
-                    throw new Error('AuthService not properly initialized');
-                }
-                
-                // Mark that we're processing the code
-                sessionStorage.setItem('code_processed', 'true');
-                console.log('Code processing flag set');
-                
-                console.log('Calling handleCallback...');
-                authService.handleCallback();
-            } catch (error) {
-                console.error('Error in callback handling:', error);
-                showError('Error processing login: ' + error.message);
-                // Clear any stored state
-                sessionStorage.removeItem('code_processed');
-                localStorage.removeItem('code_verifier');
-            }
+            });
         });
     </script>
 </body>
