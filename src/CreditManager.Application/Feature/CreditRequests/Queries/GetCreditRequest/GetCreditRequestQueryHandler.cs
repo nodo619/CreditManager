@@ -1,9 +1,10 @@
+using CreditManager.Application.Common.Models;
 using CreditManager.Application.Contracts.Persistence;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
 
-public class GetCreditRequestQueryHandler : IRequestHandler<GetCreditRequestQuery, CreditRequestDto>
+public class GetCreditRequestQueryHandler : IRequestHandler<GetCreditRequestQuery, Result<CreditRequestDto>>
 {
     private readonly ICreditReadRepository _repository;
 
@@ -12,16 +13,16 @@ public class GetCreditRequestQueryHandler : IRequestHandler<GetCreditRequestQuer
         _repository = repository;
     }
 
-    public async Task<CreditRequestDto> Handle(GetCreditRequestQuery request, CancellationToken cancellationToken)
+    public async Task<Result<CreditRequestDto>> Handle(GetCreditRequestQuery request, CancellationToken cancellationToken)
     {
         var creditRequest = await _repository.GetCreditByIdAsync(request.Id, cancellationToken);
 
         if (creditRequest == null)
         {
-            throw new KeyNotFoundException($"Credit request with ID {request.Id} was not found.");
+            return Result<CreditRequestDto>.Failure($"Credit request with ID {request.Id} was not found.");
         }
 
-        return new CreditRequestDto
+        return Result<CreditRequestDto>.Success(new CreditRequestDto
         {
             Id = creditRequest.Id,
             CustomerId = creditRequest.CustomerId,
@@ -36,6 +37,6 @@ public class GetCreditRequestQueryHandler : IRequestHandler<GetCreditRequestQuer
             Comments = creditRequest.Comments,
             ApprovalDate = creditRequest.ApprovalDate,
             ApprovedBy = creditRequest.ApprovedBy
-        };
+        });
     }
 } 

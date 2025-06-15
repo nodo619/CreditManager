@@ -1,3 +1,4 @@
+using CreditManager.Application.Common.Models;
 using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Queries;
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
@@ -20,11 +21,19 @@ public class CreditRequestsController : ApiController
 
     [HttpPost]
     [Authorize]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Guid>> CreateCreditRequest(
         [FromBody] CreateCreditRequestCommand command)
     {
-        var id = await Sender.Send(command);
-        return Ok(id);
+        var result = await Sender.Send(command);
+        
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpGet("/{id}")]
@@ -32,22 +41,28 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CreditRequestDto>> GetCreditRequest(Guid id)
     {
-        try
+        var result = await Sender.Send(new GetCreditRequestQuery(id));
+        
+        if (!result.IsSuccess)
         {
-            var creditRequest = await Sender.Send(new GetCreditRequestQuery(id));
-            return Ok(creditRequest);
+            return NotFound(result.Error);
         }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+
+        return Ok(result.Value);
     }
 
     [HttpGet("ForCustomer")]
     [ProducesResponseType(typeof(IEnumerable<CreditRequestDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IEnumerable<CreditRequestDto>>> GetCreditRequestsForCustomer()
     {
-        var creditRequests = await Sender.Send(new GetCreditRequestsForCustomerQuery());
-        return Ok(creditRequests);
+        var result = await Sender.Send(new GetCreditRequestsForCustomerQuery());
+        
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
     }
 }

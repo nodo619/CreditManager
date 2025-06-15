@@ -1,3 +1,4 @@
+using CreditManager.Application.Common.Models;
 using CreditManager.Application.Contracts.Infrastructure;
 using CreditManager.Application.Messages;
 using MassTransit;
@@ -5,7 +6,7 @@ using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
 
-public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditRequestCommand, Guid>
+public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditRequestCommand, Result<Guid>>
 {
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ICurrentUserService _currentUserService;
@@ -16,13 +17,13 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
         _currentUserService = currentUserService;
     }
 
-    public async Task<Guid> Handle(CreateCreditRequestCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(CreateCreditRequestCommand request, CancellationToken cancellationToken)
     {
         var currentUser = await _currentUserService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser is null)
         {
-            throw new ArgumentNullException(nameof(currentUser));
+            return Result<Guid>.Failure("Current user not found");
         }
 
         var message = new CreditRequestMessage
@@ -41,6 +42,6 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
 
         await _publishEndpoint.Publish(message);
 
-        return message.Id;
+        return Result<Guid>.Success(message.Id);
     }
 }

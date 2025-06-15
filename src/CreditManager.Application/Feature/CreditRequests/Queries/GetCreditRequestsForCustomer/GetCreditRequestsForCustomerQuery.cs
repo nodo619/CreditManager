@@ -1,5 +1,6 @@
+using CreditManager.Application.Common.Models;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequestsForCustomer;
 
-public record GetCreditRequestsForCustomerQuery : IRequest<IEnumerable<CreditRequestDto>>;
+public record GetCreditRequestsForCustomerQuery : IRequest<Result<IEnumerable<CreditRequestDto>>>;
