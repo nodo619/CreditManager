@@ -1,3 +1,4 @@
+using CreditManager.Application.Contracts.Infrastructure;
 using CreditManager.Domain.Entities;
 using CreditManager.Domain.Entities.Audit;
 using CreditManager.Domain.Entities.Credit;
@@ -11,7 +12,8 @@ public class CreditManagerDbContext : DbContext
     public CreditManagerDbContext(
         DbContextOptions<CreditManagerDbContext> options
     ) : base(options)
-    { }
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,10 +32,10 @@ public class CreditManagerDbContext : DbContext
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.DateCreated = DateTime.Now;
+                    entry.Entity.DateCreated = DateTime.UtcNow;
                     break;
                 case EntityState.Modified:
-                    entry.Entity.LastModifiedDate = DateTime.Now;
+                    entry.Entity.LastModifiedDate = DateTime.UtcNow;
                     break;
             }
         }
@@ -52,9 +54,7 @@ public class CreditManagerDbContext : DbContext
         {
             if (entry.State == EntityState.Added)
             {
-                //TODO
-                // need to set correct user id
-                entry.Entity.CreatedById = Guid.Empty;
+                //entry.Entity.CreatedById = Guid.Empty;
             }
 
             if (entry.State is EntityState.Detached or EntityState.Unchanged or EntityState.Added)
@@ -75,7 +75,7 @@ public class CreditManagerDbContext : DbContext
                 OsUser = "",
                 PrimKey = entry.Entity.Id.ToString(),
                 TableName = tableName!,
-                TransDate = DateTime.Now,
+                TransDate = DateTime.UtcNow,
                 TranType = (int)entry.State
             };
             transAuditHs.Add(transAuditH);
@@ -116,10 +116,10 @@ public class CreditManagerDbContext : DbContext
         await TransAuditEs.AddRangeAsync(transAuditEs, cancellationToken);
     }
 
-    private DbSet<TransAuditE> TransAuditEs => null!;
+    public DbSet<TransAuditE> TransAuditEs { get; set; } = null!;
 
-    private DbSet<TransAuditH> TransAuditHs => null!;
-    
+    public DbSet<TransAuditH> TransAuditHs { get; set; } = null!;
+
     public DbSet<User> Users { get; set; }
     
     public DbSet<CreditRequest> CreditRequests { get; set; }

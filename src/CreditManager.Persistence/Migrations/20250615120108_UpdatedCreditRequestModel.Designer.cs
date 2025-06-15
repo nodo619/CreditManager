@@ -3,6 +3,7 @@ using System;
 using CreditManager.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CreditManager.Persistence.Migrations
 {
     [DbContext(typeof(CreditManagerDbContext))]
-    partial class CreditManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250615120108_UpdatedCreditRequestModel")]
+    partial class UpdatedCreditRequestModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

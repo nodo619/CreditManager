@@ -8,14 +8,23 @@ namespace CreditManager.Application.Feature.CreditRequests.Commands.CreateCredit
 public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditRequestCommand, Guid>
 {
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly ICurrentUserService _currentUserService;
 
-    public CreateCreditRequestCommandHandler(IPublishEndpoint publishEndpoint)
+    public CreateCreditRequestCommandHandler(IPublishEndpoint publishEndpoint, ICurrentUserService currentUserService)
     {
         _publishEndpoint = publishEndpoint;
+        _currentUserService = currentUserService;
     }
 
     public async Task<Guid> Handle(CreateCreditRequestCommand request, CancellationToken cancellationToken)
     {
+        var currentUser = await _currentUserService.GetCurrentUserAsync(cancellationToken);
+
+        if (currentUser is null)
+        {
+            throw new ArgumentNullException(nameof(currentUser));
+        }
+
         var message = new CreditRequestMessage
         {
             Id = Guid.NewGuid(),
@@ -26,8 +35,8 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
             PeriodDays = request.PeriodDays,
             CreditType = request.CreditType,
             CurrencyCode = request.CurrencyCode,
-            CustomerId = request.CustomerId,
-            RequestDate = DateTime.Now
+            CustomerId = currentUser.Id,
+            RequestDate = DateTime.UtcNow
         };
 
         await _publishEndpoint.Publish(message);

@@ -1,8 +1,9 @@
 using MediatR;
 
-namespace CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
+namespace CreditManager.Application.Feature.CreditRequests.Commands.UpdateCreditRequest;
 
-public record CreateCreditRequestCommand(
+public record UpdateCreditRequestCommand(
+    Guid Id,
     decimal Amount,
     string CurrencyCode,
     string? Comments,

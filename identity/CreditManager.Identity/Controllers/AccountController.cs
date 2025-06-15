@@ -47,6 +47,6 @@ public class AccountController : ControllerBase
             return BadRequest(result.FailureMessage);
         }
         
-        return Ok(result.UserId);
+        return Ok();
     }
 }

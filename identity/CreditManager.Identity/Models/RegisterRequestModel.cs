@@ -10,7 +10,7 @@ public class RegisterRequestModel
     
     public string PersonalNumber { get; set; } = null!;
     
-    public DateOnly BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
     
     public string Password { get; set; } = null!;
 }

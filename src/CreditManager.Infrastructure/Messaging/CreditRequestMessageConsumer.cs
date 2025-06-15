@@ -17,7 +17,7 @@ public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
     public async Task Consume(ConsumeContext<CreditRequestMessage> context)
     {
         var message = context.Message;
-
+      
         var existingRequest = await _repository.GetByIdAsync(message.Id, context.CancellationToken);
 
         if (existingRequest is { })
@@ -36,7 +36,8 @@ public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
             PeriodDays = message.PeriodDays,
             CurrencyCode = message.CurrencyCode,
             Status = CreditRequestStatus.Pending,
-            Comments = message.Comments
+            Comments = message.Comments,
+            CreatedById = message.CustomerId
         };
         
         await _repository.AddAsync(creditRequest, context.CancellationToken);

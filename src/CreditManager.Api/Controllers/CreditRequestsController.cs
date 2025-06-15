@@ -1,6 +1,8 @@
 using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
+using CreditManager.Application.Feature.CreditRequests.Queries;
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
+using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequestsForCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +27,7 @@ public class CreditRequestsController : ApiController
         return Ok(id);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("/{id}")]
     [ProducesResponseType(typeof(CreditRequestDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CreditRequestDto>> GetCreditRequest(Guid id)
@@ -41,11 +43,11 @@ public class CreditRequestsController : ApiController
         }
     }
 
-    [HttpGet]
+    [HttpGet("ForCustomer")]
     [ProducesResponseType(typeof(IEnumerable<CreditRequestDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<CreditRequestDto>>> GetCreditRequests()
+    public async Task<ActionResult<IEnumerable<CreditRequestDto>>> GetCreditRequestsForCustomer()
     {
-        var creditRequests = await Sender.Send(new GetCreditRequestsQuery());
+        var creditRequests = await Sender.Send(new GetCreditRequestsForCustomerQuery());
         return Ok(creditRequests);
     }
 }

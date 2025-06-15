@@ -14,7 +14,7 @@ public class GetCreditRequestQueryHandler : IRequestHandler<GetCreditRequestQuer
 
     public async Task<CreditRequestDto> Handle(GetCreditRequestQuery request, CancellationToken cancellationToken)
     {
-        var creditRequest = await _repository.GetCreditByIdAsync(request.Id);
+        var creditRequest = await _repository.GetCreditByIdAsync(request.Id, cancellationToken);
 
         if (creditRequest == null)
         {

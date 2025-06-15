@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddCommonInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddMassTransitBus(builder.Configuration);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddCommonInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
