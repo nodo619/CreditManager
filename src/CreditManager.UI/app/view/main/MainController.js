@@ -1,54 +1,62 @@
-/**
- * This class is the controller for the main view for the application. It is specified as
- * the "controller" of the Main view class.
- */
 Ext.define('CreditManager.UI.view.main.MainController', {
     extend: 'Ext.app.ViewController',
 
     alias: 'controller.main',
 
-    onItemSelected: function (sender, record) {
-        Ext.Msg.confirm('Confirm', 'Are you sure?', 'onConfirm', this);
-    },
-
-    onConfirm: function (choice) {
-        if (choice === 'yes') {
-            //
-        }
-    },
+    requires: [
+        'CreditManager.UI.service.JwtHelper'
+    ],
 
     init: function() {
         var me = this;
-        var userInfo = CreditManager.UI.service.AuthService.getUserInfo();
-        
-        var userInfoComponent = me.lookup('userInfo');
-        var loginLink = me.lookup('loginLink');
-        var logoutLink = me.lookup('logoutLink');
-        
-        if (userInfo) {
-            console.log('User info in MainController:', userInfo);
-            var displayName = userInfo.name || 
-                            (userInfo.firstName && userInfo.lastName ? 
-                            `${userInfo.firstName} ${userInfo.lastName}` : 
-                            userInfo.email);
-            
-            userInfoComponent.setHtml(displayName);
-            userInfoComponent.show();
-            logoutLink.show();
-            loginLink.hide();
-        } else {
-            console.log('No user info available, showing login link');
-            userInfoComponent.hide();
-            logoutLink.hide();
-            loginLink.show();
+        var vm = this.getViewModel();
+
+        const token = localStorage.getItem('access_token');
+
+        if (token) {
+            const userData = CreditManager.UI.service.JwtHelper.parseJwt(token);
+            console.log('Decoded user data:', userData);
+
+            vm.set('currentUser', {
+                displayName: `${userData.given_name} ${userData.family_name}`,
+                role: parseInt(userData.role)
+            });
+
+            var displayName = userData.given_name && userData.family_name 
+                ? `${userData.given_name} ${userData.family_name}` 
+                : userData.name || userData.sub;
+
+            // Set entire currentUser object to trigger binding
+            vm.set('currentUser', {
+                username: userData.nameid || userData.sub,
+                displayName: displayName,
+                role: userData.role || 'User'
+            });
         }
     },
 
-    onLoginClick: function() {
-        CreditManager.UI.service.AuthService.login();
-    },
-
     onLogoutClick: function() {
-        CreditManager.UI.service.AuthService.logout();
+        localStorage.removeItem('access_token');
+        window.location.reload();
+    },
+    
+    onMyCreditsClick: function() {
+        var me = this;
+        var content = me.lookup('contentArea');
+    
+        content.removeAll();
+        content.add({
+            xtype: 'mycreditrequestgrid'
+        });
+    },
+    
+    onManageCreditsClick: function() {
+        var me = this;
+        var content = me.lookup('contentArea');
+    
+        content.removeAll();
+        content.add({
+            xtype: 'managecreditrequestgrid'
+        });
     }
 });

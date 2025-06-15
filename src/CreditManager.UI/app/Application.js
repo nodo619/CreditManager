@@ -9,7 +9,8 @@ Ext.define('CreditManager.UI.Application', {
     name: 'CreditManager.UI',
 
     requires: [
-        'CreditManager.UI.service.AuthService'
+        'CreditManager.UI.service.AuthService',
+        'Ext.plugin.Viewport'
     ],
 
     quickTips: false,
@@ -20,23 +21,17 @@ Ext.define('CreditManager.UI.Application', {
     },
 
     launch: function() {
-        // Check if we have a stored auth code
-        var authCode = localStorage.getItem('auth_code');
-        if (authCode) {
-            // Exchange the code for tokens
-            CreditManager.UI.service.AuthService.exchangeCodeForToken(authCode);
+        const token = localStorage.getItem('access_token');
+
+        if (!token) {
+            Ext.create('CreditManager.UI.view.auth.LoginForm', { renderTo: Ext.getBody() });
             return;
         }
 
-        // Check if user is authenticated
-        if (!CreditManager.UI.service.AuthService.isAuthenticated()) {
-            // Start the login process
-            CreditManager.UI.service.AuthService.login();
-            return;
-        }
-
-        // Show the main view
-        Ext.create('CreditManager.UI.view.main.Main');
+        console.log('now main view should load');
+        Ext.create('CreditManager.UI.view.main.Main', {
+            renderTo: Ext.getBody()
+        });
     },
 
     onAppUpdate: function () {

@@ -5,6 +5,13 @@
     line-height: 24px;
 }
 
+.action-icon {
+    margin-right: 8px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+}
+
 .main-toolbar {
     background: #2c3e50;
     padding: 0 20px;
@@ -15,12 +22,14 @@
 }
 
 .user-info {
-    color: #fff;
+    color: #000;
     font-size: 14px;
     line-height: 24px;
     padding: 5px 15px;
     margin-right: 15px;
     font-weight: 500;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
 }
 
 .login-link, .logout-link {
@@ -47,4 +56,4 @@
     .x-btn-inner {
         color: #e74c3c;
     }
-} 
+}
