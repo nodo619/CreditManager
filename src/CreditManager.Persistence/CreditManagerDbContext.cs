@@ -1,6 +1,7 @@
 using CreditManager.Domain.Entities;
 using CreditManager.Domain.Entities.Audit;
 using CreditManager.Domain.Entities.Credit;
+using CreditManager.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CreditManager.Persistence;
@@ -118,6 +119,8 @@ public class CreditManagerDbContext : DbContext
     private DbSet<TransAuditE> TransAuditEs => null!;
 
     private DbSet<TransAuditH> TransAuditHs => null!;
+    
+    public DbSet<User> Users { get; set; }
     
     public DbSet<CreditRequest> CreditRequests { get; set; }
 }
