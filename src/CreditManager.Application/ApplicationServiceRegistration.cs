@@ -12,7 +12,8 @@ public static class ApplicationServiceRegistration
     {
         services.AddMediatR(c => c.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
         return services;
     }

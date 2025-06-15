@@ -1,36 +1,50 @@
+using CreditManager.Application.Common.Models;
+using CreditManager.Application.Contracts.Persistence;
+using CreditManager.Application.Pagination;
+using CreditManager.Domain.Entities.Credit;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
 
-public class GetCreditRequestsQueryHandler : IRequestHandler<GetCreditRequestsQuery, IEnumerable<CreditRequestDto>>
+public class GetCreditRequestsQueryHandler : IRequestHandler<GetCreditRequestsQuery, Result<PaginatedList<CreditRequestDto>>>
 {
-    // private readonly IApplicationDbContext _context;
-    //
-    // public GetCreditRequestsQueryHandler(IApplicationDbContext context)
-    // {
-    //     _context = context;
-    // }
+    private readonly ICreditReadRepository _repository;
 
-    public async Task<IEnumerable<CreditRequestDto>> Handle(GetCreditRequestsQuery request, CancellationToken cancellationToken)
+    public GetCreditRequestsQueryHandler(ICreditReadRepository repository)
     {
-        // return await _context.CreditRequests
-        //     .Select(cr => new CreditRequestDto
-        //     {
-        //         Id = cr.Id,
-        //         CustomerId = cr.CustomerId,
-        //         Amount = cr.Amount,
-        //         CurrencyCode = cr.CurrencyCode,
-        //         RequestDate = cr.RequestDate,
-        //         Period = cr.Period,
-        //         CreditType = cr.CreditType,
-        //         Status = cr.Status,
-        //         Comments = cr.Comments,
-        //         ApprovalDate = cr.ApprovalDate,
-        //         ApprovedBy = cr.ApprovedBy,
-        //         CreatedAt = cr.CreatedAt,
-        //         LastModifiedAt = cr.LastModifiedAt
-        //     })
-        //     .ToListAsync(cancellationToken);
-        return null;
+        _repository = repository;
+    }
+
+    public async Task<Result<PaginatedList<CreditRequestDto>>> Handle(GetCreditRequestsQuery request, CancellationToken cancellationToken)
+    {
+        var neededStatuses = new[]
+        {
+            (int)CreditRequestStatus.Sent,
+            (int)CreditRequestStatus.Approved,
+            (int)CreditRequestStatus.Rejected,
+            (int)CreditRequestStatus.Cancelled
+        };
+
+        var creditRequests = await _repository.GetCreditsWithSpecificStatusesAsync(neededStatuses, request, cancellationToken);
+
+        var dtoList = creditRequests.Items.Select(c => new CreditRequestDto
+        {
+            Id = c.Id,
+            CustomerId = c.CustomerId,
+            Amount = c.Amount,
+            CurrencyCode = c.CurrencyCode,
+            RequestDate = c.RequestDate,
+            PeriodYears = c.PeriodYears,
+            PeriodMonths = c.PeriodMonths,
+            PeriodDays = c.PeriodDays,
+            CreditType = c.CreditType,
+            Status = c.Status,
+            Comments = c.Comments,
+            ApprovalDate = c.ApprovalDate,
+            ApprovedBy = c.ApprovedBy
+        }).ToList();
+
+        return Result<PaginatedList<CreditRequestDto>>.Success(
+            new PaginatedList<CreditRequestDto>(dtoList, creditRequests.TotalCount));
     }
 } 

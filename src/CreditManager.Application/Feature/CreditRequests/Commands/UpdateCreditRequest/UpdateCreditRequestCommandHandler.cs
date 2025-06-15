@@ -1,13 +1,12 @@
+using CreditManager.Application.Common.Models;
 using CreditManager.Application.Contracts.Infrastructure;
 using CreditManager.Application.Contracts.Persistence;
-using CreditManager.Application.Messages;
 using CreditManager.Domain.Entities.Credit;
-using MassTransit;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Commands.UpdateCreditRequest;
 
-public class UpdateCreditRequestCommandHandler : IRequestHandler<UpdateCreditRequestCommand, Guid>
+public class UpdateCreditRequestCommandHandler : IRequestHandler<UpdateCreditRequestCommand, Result<Unit>>
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IAsyncRepository<Guid, CreditRequest> _repository;
@@ -18,30 +17,31 @@ public class UpdateCreditRequestCommandHandler : IRequestHandler<UpdateCreditReq
         _repository = repository;
     }
 
-    public async Task<Guid> Handle(UpdateCreditRequestCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Unit>> Handle(UpdateCreditRequestCommand request, CancellationToken cancellationToken)
     {
         var currentUser = await _currentUserService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser is null)
         {
-            throw new ArgumentNullException(nameof(currentUser));
+            return Result<Unit>.Failure("Current user not found");
         }
 
         var existingRecord = await _repository.GetByIdAsync(request.Id, cancellationToken);
 
         if (existingRecord is null)
         {
-            throw new KeyNotFoundException();
+            return Result<Unit>.Failure("Credit request not found");
         }
 
         bool modified = ApplyUpdatesIfChanged(existingRecord, request);
 
         if (modified)
         {
+            existingRecord.LastModifiedBy = currentUser.Id.ToString();
             await _repository.UpdateAsync(existingRecord, cancellationToken);
         }
 
-        return request.Id;
+        return Result<Unit>.Success(Unit.Value);
     }
 
     public bool ApplyUpdatesIfChanged(CreditRequest entity, UpdateCreditRequestCommand request)

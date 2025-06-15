@@ -1,3 +1,4 @@
+using CreditManager.Application.Common.Models;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Commands.UpdateCreditRequest;
@@ -11,4 +12,4 @@ public record UpdateCreditRequestCommand(
     int PeriodYears,
     int PeriodMonths,
     int PeriodDays
-    ) : IRequest<Guid>;
+    ) : IRequest<Result<Unit>>;

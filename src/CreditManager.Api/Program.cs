@@ -5,8 +5,17 @@ using CreditManager.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using CreditManager.Api.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
@@ -17,7 +26,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -63,7 +72,11 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireCreditOfficerRole", policy => 
+        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "2"));
+});
 
 var app = builder.Build();
 
@@ -75,6 +88,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandling();
+app.UseRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();

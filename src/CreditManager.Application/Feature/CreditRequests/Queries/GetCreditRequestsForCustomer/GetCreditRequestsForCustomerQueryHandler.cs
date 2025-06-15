@@ -1,12 +1,13 @@
 using CreditManager.Application.Common.Models;
 using CreditManager.Application.Contracts.Infrastructure;
 using CreditManager.Application.Contracts.Persistence;
+using CreditManager.Application.Pagination;
 using CreditManager.Domain.Entities.Credit;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequestsForCustomer;
 
-public class GetCreditRequestsForCustomerQueryHandler : IRequestHandler<GetCreditRequestsForCustomerQuery, Result<IEnumerable<CreditRequestDto>>>
+public class GetCreditRequestsForCustomerQueryHandler : IRequestHandler<GetCreditRequestsForCustomerQuery, Result<PaginatedList<CreditRequestDto>>>
 {
     private readonly ICreditReadRepository _repository;
     private readonly ICurrentUserService _currentUserService;
@@ -17,18 +18,18 @@ public class GetCreditRequestsForCustomerQueryHandler : IRequestHandler<GetCredi
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<IEnumerable<CreditRequestDto>>> Handle(GetCreditRequestsForCustomerQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PaginatedList<CreditRequestDto>>> Handle(GetCreditRequestsForCustomerQuery request, CancellationToken cancellationToken)
     {
         var currentUser = await _currentUserService.GetCurrentUserAsync(cancellationToken);
 
         if (currentUser is null)
         {
-            return Result<IEnumerable<CreditRequestDto>>.Failure("Current user not found");
+            return Result<PaginatedList<CreditRequestDto>>.Failure("Current user not found");
         }
 
-        var creditRequests = await _repository.GetCreditsForUserAsync(currentUser.Id, cancellationToken);
+        var creditRequests = await _repository.GetCreditsForUserAsync(currentUser.Id, request, cancellationToken);
 
-        var dtoList = creditRequests?.Select(c => new CreditRequestDto
+        var dtoList = creditRequests.Items.Select(c => new CreditRequestDto
         {
             Id = c.Id,
             CustomerId = c.CustomerId,
@@ -43,8 +44,9 @@ public class GetCreditRequestsForCustomerQueryHandler : IRequestHandler<GetCredi
             Comments = c.Comments,
             ApprovalDate = c.ApprovalDate,
             ApprovedBy = c.ApprovedBy
-        });
+        }).ToList();
 
-        return Result<IEnumerable<CreditRequestDto>>.Success(dtoList ?? new List<CreditRequestDto>());
+        return Result<PaginatedList<CreditRequestDto>>.Success(
+            new PaginatedList<CreditRequestDto>(dtoList, creditRequests.TotalCount));
     }
 } 
