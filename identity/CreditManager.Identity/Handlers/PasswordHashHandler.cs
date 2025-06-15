@@ -16,7 +16,7 @@ public static class PasswordHashHandler
     {
         var hasher = new PasswordHasher<User>();
         
-        var result = hasher.VerifyHashedPassword(null, password, hashedPassword);
+        var result = hasher.VerifyHashedPassword(null, hashedPassword, password);
         
         return result is PasswordVerificationResult.Success or PasswordVerificationResult.SuccessRehashNeeded;
     }

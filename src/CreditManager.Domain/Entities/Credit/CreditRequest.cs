@@ -10,7 +10,11 @@ public class CreditRequest : AuditableEntity<Guid>
     
     public DateTime RequestDate { get; set; }
 
-    public TimeSpan Period { get; set; }
+    public int PeriodYears { get; set; }
+    
+    public int PeriodMonths { get; set; }
+    
+    public int PeriodDays { get; set; }
 
     public CreditType CreditType { get; set; }
 

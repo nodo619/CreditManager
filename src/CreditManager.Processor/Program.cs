@@ -7,7 +7,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         var config = context.Configuration;
 
         services.AddPersistenceServices(config);
-        services.AddInfrastructureServices(config);
+        services.AddMassTransitWithConsumers(config);
 
     })
     .Build();

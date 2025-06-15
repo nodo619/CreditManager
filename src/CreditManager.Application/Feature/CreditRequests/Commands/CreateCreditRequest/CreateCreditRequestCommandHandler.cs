@@ -1,3 +1,4 @@
+using CreditManager.Application.Contracts.Infrastructure;
 using CreditManager.Application.Messages;
 using MassTransit;
 using MediatR;
@@ -20,7 +21,9 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
             Id = Guid.NewGuid(),
             Amount = request.Amount,
             Comments = request.Comments,
-            Period = request.Period,
+            PeriodYears = request.PeriodYears,
+            PeriodMonths = request.PeriodMonths,
+            PeriodDays = request.PeriodDays,
             CreditType = request.CreditType,
             CurrencyCode = request.CurrencyCode,
             CustomerId = request.CustomerId,

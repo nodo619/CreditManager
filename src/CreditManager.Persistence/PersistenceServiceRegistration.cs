@@ -1,5 +1,6 @@
 using CreditManager.Application.Contracts.Persistence;
 using CreditManager.Persistence.Repositories;
+using CreditManager.Persistence.Repositories.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ public static class PersistenceServiceRegistration
         );
 
         services.AddScoped(typeof(IAsyncRepository<,>), typeof(BaseRepository<,>));
+        services.AddScoped<IUsersRepository, UsersRepository>();
         services.AddScoped<ICreditReadRepository, CreditReadRepository>();
 
         services.AddSingleton<DapperContext>();

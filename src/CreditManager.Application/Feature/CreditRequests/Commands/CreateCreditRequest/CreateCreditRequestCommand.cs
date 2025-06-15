@@ -9,5 +9,7 @@ public record CreateCreditRequestCommand(
     string CurrencyCode,
     string? Comments,
     int CreditType,
-    TimeSpan Period
+    int PeriodYears,
+    int PeriodMonths,
+    int PeriodDays
     ) : IRequest<Guid>;

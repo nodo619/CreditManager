@@ -60,7 +60,7 @@ public class IdentityService : IIdentityService
             Issuer = issuer,
             Audience = audience,
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                 SecurityAlgorithms.HmacSha256Signature)
         };
 

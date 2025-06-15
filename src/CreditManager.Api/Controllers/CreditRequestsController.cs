@@ -2,6 +2,7 @@ using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequ
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CreditManager.Api.Controllers;
@@ -16,6 +17,7 @@ public class CreditRequestsController : ApiController
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<Guid>> CreateCreditRequest(
         [FromBody] CreateCreditRequestCommand command)
     {

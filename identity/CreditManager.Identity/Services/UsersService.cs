@@ -23,7 +23,7 @@ public class UsersService : IUsersService
     public async Task<RegisterResponseModel> AddUser(RegisterRequestModel userDto, CancellationToken cancellationToken)
     {
         var existingUser = await _usersRepository.GetByUsernameAsync(userDto.Username, cancellationToken);
-
+        
         if (existingUser is not null)
         {
             return new RegisterResponseModel

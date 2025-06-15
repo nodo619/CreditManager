@@ -31,12 +31,14 @@ public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
             CustomerId = message.CustomerId,
             Amount = message.Amount,
             CreditType = (CreditType)message.CreditType,
-            Period = message.Period,
+            PeriodYears = message.PeriodYears,
+            PeriodMonths = message.PeriodMonths,
+            PeriodDays = message.PeriodDays,
             CurrencyCode = message.CurrencyCode,
             Status = CreditRequestStatus.Pending,
             Comments = message.Comments
         };
         
-        //await _repository.AddAsync(creditRequest, context.CancellationToken);
+        await _repository.AddAsync(creditRequest, context.CancellationToken);
     }
 }

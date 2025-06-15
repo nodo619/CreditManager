@@ -15,6 +15,11 @@ public class CreditRequestMessage
     public int CreditType { get; set; }
 
     public DateTime RequestDate { get; set; }
+    
+    public int PeriodYears { get; set; }
+    
+    public int PeriodMonths { get; set; }
+    
+    public int PeriodDays { get; set; }
 
-    public TimeSpan Period { get; set; }
 }
