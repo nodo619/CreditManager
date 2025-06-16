@@ -13,3 +13,13 @@ public record UpdateCreditRequestCommand(
     int PeriodMonths,
     int PeriodDays
     ) : IRequest<Result<Unit>>;
+
+public record UpdateCreditRequest(
+    decimal Amount,
+    string CurrencyCode,
+    string? Comments,
+    int CreditType,
+    int PeriodYears,
+    int PeriodMonths,
+    int PeriodDays
+);

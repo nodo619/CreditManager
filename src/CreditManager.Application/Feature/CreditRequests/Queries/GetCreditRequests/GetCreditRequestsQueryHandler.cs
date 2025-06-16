@@ -41,7 +41,15 @@ public class GetCreditRequestsQueryHandler : IRequestHandler<GetCreditRequestsQu
             Status = c.Status,
             Comments = c.Comments,
             ApprovalDate = c.ApprovalDate,
-            ApprovedBy = c.ApprovedBy
+            ApprovedBy = c.ApprovedBy,
+            Customer = new UserDto
+            {
+                Id = c.CustomerId,
+                FirstName = c.CustomerFirstName,
+                LastName = c.CustomerLastName,
+                PersonalNumber = c.CustomerPersonalNumber,
+                Username = c.CustomerUsername
+            }
         }).ToList();
 
         return Result<PaginatedList<CreditRequestDto>>.Success(

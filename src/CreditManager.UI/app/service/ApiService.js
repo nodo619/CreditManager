@@ -55,5 +55,45 @@ Ext.define('CreditManager.UI.service.ApiService', {
         }
 
         return await response.json();
+    },
+
+    async post(endpoint, data = null) {
+        const response = await fetch(`${this.apiUrl}/${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getAuthHeaders()
+            },
+            body: data ? JSON.stringify(data) : null
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        // Check if response has content
+        const text = await response.text();
+        if (!text) {
+            return null; // no body
+        }
+
+        return JSON.parse(text);
+    },
+
+    async put(endpoint, data) {
+        const response = await fetch(`${this.apiUrl}/${endpoint}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getAuthHeaders()
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('API request failed');
+        }
+
+        return await response.text(); // In case backend returns empty 200 OK
     }
 });

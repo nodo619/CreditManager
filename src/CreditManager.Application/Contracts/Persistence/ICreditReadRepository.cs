@@ -1,4 +1,5 @@
-﻿using CreditManager.Application.Pagination;
+﻿using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
+using CreditManager.Application.Pagination;
 using CreditManager.Domain.Entities.Credit;
 
 namespace CreditManager.Application.Contracts.Persistence;
@@ -12,7 +13,7 @@ public interface ICreditReadRepository
         IQueryObject queryObject,
         CancellationToken cancellationToken);
 
-    public Task<PaginatedList<CreditRequest>> GetCreditsWithSpecificStatusesAsync(
+    public Task<PaginatedList<CreditRequestWithUserModel>> GetCreditsWithSpecificStatusesAsync(
         int[] includedStatuses,
         IQueryObject queryObject,
         CancellationToken cancellationToken);

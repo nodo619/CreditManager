@@ -5,41 +5,44 @@ using MassTransit;
 
 namespace CreditManager.Infrastructure.Messaging;
 
-public class CreditRequestMessageConsumer : IConsumer<CreditRequestMessage>
+public class CreditRequestMessageConsumer : IConsumer<CreditRequestSentMessage>
 {
-    private readonly IAsyncRepository<Guid, CreditRequest> _repository;
+    private readonly IAsyncRepository<Guid, SentCreditRequest> _sendRequestRepository;
+    private readonly IAsyncRepository<Guid, CreditRequest> _creditRequestRepository;
 
-    public CreditRequestMessageConsumer(IAsyncRepository<Guid, CreditRequest> repository)
+    public CreditRequestMessageConsumer(
+        IAsyncRepository<Guid, SentCreditRequest> sendRequestRepository,
+        IAsyncRepository<Guid, CreditRequest> creditRequestRepository)
     {
-        _repository = repository;
+        _sendRequestRepository = sendRequestRepository;
+        _creditRequestRepository = creditRequestRepository;
     }
-    
-    public async Task Consume(ConsumeContext<CreditRequestMessage> context)
+
+    public async Task Consume(ConsumeContext<CreditRequestSentMessage> context)
     {
         var message = context.Message;
-      
-        var existingRequest = await _repository.GetByIdAsync(message.Id, context.CancellationToken);
 
-        if (existingRequest is { })
+        var existingSendRequest = await _sendRequestRepository.GetByIdAsync(message.Id, context.CancellationToken);
+
+        if (existingSendRequest is {})
         {
             return;
         }
 
-        var creditRequest = new CreditRequest
+        var existingRequest = await _creditRequestRepository.GetByIdAsync(message.CreditRequestId, context.CancellationToken);
+
+        if (existingRequest is null)
+        {
+            return;
+        }
+
+        var sentCreditRequest = new SentCreditRequest
         {
             Id = message.Id,
-            CustomerId = message.CustomerId,
-            Amount = message.Amount,
-            CreditType = (CreditType)message.CreditType,
-            PeriodYears = message.PeriodYears,
-            PeriodMonths = message.PeriodMonths,
-            PeriodDays = message.PeriodDays,
-            CurrencyCode = message.CurrencyCode,
-            Status = CreditRequestStatus.Pending,
-            Comments = message.Comments,
-            CreatedById = message.CustomerId
+            CreditRequestId = message.CreditRequestId,
+            SendTime = message.SendTime
         };
-        
-        await _repository.AddAsync(creditRequest, context.CancellationToken);
+
+        await _sendRequestRepository.AddAsync(sentCreditRequest, context.CancellationToken);
     }
 }

@@ -123,4 +123,7 @@ public class CreditManagerDbContext : DbContext
     public DbSet<User> Users { get; set; }
     
     public DbSet<CreditRequest> CreditRequests { get; set; }
+
+    public DbSet<SentCreditRequest> SentCreditRequests { get; set; }
+
 }

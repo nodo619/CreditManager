@@ -1,20 +1,20 @@
 using CreditManager.Application.Common.Models;
 using CreditManager.Application.Contracts.Infrastructure;
-using CreditManager.Application.Messages;
-using MassTransit;
+using CreditManager.Application.Contracts.Persistence;
+using CreditManager.Domain.Entities.Credit;
 using MediatR;
 
 namespace CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
 
 public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditRequestCommand, Result<Guid>>
 {
-    private readonly IPublishEndpoint _publishEndpoint;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IAsyncRepository<Guid, CreditRequest> _repository;
 
-    public CreateCreditRequestCommandHandler(IPublishEndpoint publishEndpoint, ICurrentUserService currentUserService)
+    public CreateCreditRequestCommandHandler(ICurrentUserService currentUserService, IAsyncRepository<Guid, CreditRequest> repository)
     {
-        _publishEndpoint = publishEndpoint;
         _currentUserService = currentUserService;
+        _repository = repository;
     }
 
     public async Task<Result<Guid>> Handle(CreateCreditRequestCommand request, CancellationToken cancellationToken)
@@ -26,22 +26,22 @@ public class CreateCreditRequestCommandHandler : IRequestHandler<CreateCreditReq
             return Result<Guid>.Failure("Current user not found");
         }
 
-        var message = new CreditRequestMessage
+        var creditRequest = new CreditRequest
         {
-            Id = Guid.NewGuid(),
+            CustomerId = currentUser.Id,
             Amount = request.Amount,
-            Comments = request.Comments,
+            CreditType = (CreditType)request.CreditType,
             PeriodYears = request.PeriodYears,
             PeriodMonths = request.PeriodMonths,
             PeriodDays = request.PeriodDays,
-            CreditType = request.CreditType,
             CurrencyCode = request.CurrencyCode,
-            CustomerId = currentUser.Id,
-            RequestDate = DateTime.UtcNow
+            Status = CreditRequestStatus.Pending,
+            Comments = request.Comments,
+            CreatedById = currentUser.Id
         };
 
-        await _publishEndpoint.Publish(message);
+        await _repository.AddAsync(creditRequest, cancellationToken);
 
-        return Result<Guid>.Success(message.Id);
+        return Result<Guid>.Success(creditRequest.Id);
     }
 }

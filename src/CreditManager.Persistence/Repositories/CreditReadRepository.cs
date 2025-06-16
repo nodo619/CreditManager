@@ -1,9 +1,8 @@
 ﻿using CreditManager.Application.Contracts.Persistence;
 using CreditManager.Application.Pagination;
 using CreditManager.Domain.Entities.Credit;
-using CreditManager.Domain.Entities.Identity;
 using Dapper;
-using System.Threading;
+using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequests;
 
 namespace CreditManager.Persistence.Repositories;
 
@@ -79,15 +78,21 @@ public class CreditReadRepository : ICreditReadRepository
         return new PaginatedList<CreditRequest>(items.ToList(), totalCount);
     }
 
-    public async Task<PaginatedList<CreditRequest>> GetCreditsWithSpecificStatusesAsync(
+    public async Task<PaginatedList<CreditRequestWithUserModel>> GetCreditsWithSpecificStatusesAsync(
         int[] includedStatuses,
         IQueryObject queryObject,
         CancellationToken cancellationToken)
     {
         var baseSql = $"""
-                        SELECT {Columns}
-                        FROM creditmanager."CreditRequests"
-                        WHERE "Status" = ANY(@IncludedStatuses)
+                        SELECT cr."Id", cr."CustomerId", cr."Amount", cr."CurrencyCode", cr."Status",
+                        cr."Comments", cr."ApprovalDate", cr."ApprovedBy", cr."CreditType",
+                        cr."PeriodYears", cr."PeriodMonths", cr."PeriodDays", cr."RequestDate",
+                        u."Username" as "CustomerUsername",
+                        u."FirstName" as "CustomerFirstName",
+                        u."LastName" as "CustomerLastName", u."PersonalNumber" as "CustomerPersonalNumber"
+                        FROM creditmanager."CreditRequests" cr
+                        LEFT JOIN creditmanager."Users" u ON cr."CustomerId" = u."Id"
+                        WHERE cr."Status" = ANY(@IncludedStatuses)
                         """;
 
         using var connection = _context.CreateConnection();
@@ -95,7 +100,18 @@ public class CreditReadRepository : ICreditReadRepository
         // Get total count
         var countSql = $"SELECT COUNT(*) FROM ({baseSql}) AS count_query";
         var countCommand = new CommandDefinition(countSql, new { IncludedStatuses = includedStatuses }, cancellationToken: cancellationToken);
-        var totalCount = await connection.ExecuteScalarAsync<int>(countCommand);
+
+        int totalCount;
+        try
+        {
+            totalCount = await connection.ExecuteScalarAsync<int>(countCommand);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
         // Build final SQL
         var finalSql = baseSql;
@@ -104,15 +120,26 @@ public class CreditReadRepository : ICreditReadRepository
             AllowedSortColumns.Contains(queryObject.SortBy) &&
             (queryObject.SortDirection?.ToLower() is "asc" or "desc"))
         {
-            finalSql += $""" ORDER BY "{queryObject.SortBy}" {queryObject.SortDirection!.ToUpper()} """;
+            finalSql += $""" ORDER BY cr."{queryObject.SortBy}" {queryObject.SortDirection!.ToUpper()} """;
         }
 
         finalSql += " LIMIT @Limit OFFSET @Offset";
 
         var offset = (queryObject.PageNumber - 1) * queryObject.PageSize;
         var command = new CommandDefinition(finalSql, new { IncludedStatuses = includedStatuses, Limit = queryObject.PageSize, Offset = offset }, cancellationToken: cancellationToken);
-        var items = await connection.QueryAsync<CreditRequest>(command);
 
-        return new PaginatedList<CreditRequest>(items.ToList(), totalCount);
+        IEnumerable<CreditRequestWithUserModel> items;
+        try
+        {
+            items = await connection.QueryAsync<CreditRequestWithUserModel>(command);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return new PaginatedList<CreditRequestWithUserModel>(items.ToList(), totalCount);
     }
 }

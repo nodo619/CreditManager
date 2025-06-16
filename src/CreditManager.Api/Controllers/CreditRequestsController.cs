@@ -3,6 +3,7 @@ using CreditManager.Application.Feature.CreditRequests.Commands.ApproveCreditReq
 using CreditManager.Application.Feature.CreditRequests.Commands.CancelCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Commands.RejectCreditRequest;
+using CreditManager.Application.Feature.CreditRequests.Commands.SendCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Commands.UpdateCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Queries;
 using CreditManager.Application.Feature.CreditRequests.Queries.GetCreditRequest;
@@ -142,17 +143,40 @@ public class CreditRequestsController : ApiController
         return Ok();
     }
 
+    [HttpPost("{id}/send")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> SendCreditRequest(Guid id)
+    {
+        var result = await Sender.Send(new SendCreditRequestCommand(id));
+        
+        if (!result.IsSuccess)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok();
+    }
+
     [HttpPut("{id}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateCreditRequest(Guid id, [FromBody] UpdateCreditRequestCommand command)
+    public async Task<ActionResult> UpdateCreditRequest(Guid id, [FromBody] UpdateCreditRequest request)
     {
-        if (id != command.Id)
-        {
-            return BadRequest("Id mismatch");
-        }
+        var command = new UpdateCreditRequestCommand(
+            Id: id,
+            Amount: request.Amount,
+            Comments: request.Comments,
+            CreditType: request.CreditType,
+            CurrencyCode: request.CurrencyCode,
+            PeriodDays: request.PeriodDays,
+            PeriodMonths: request.PeriodMonths,
+            PeriodYears: request.PeriodYears
+        );
 
         var result = await Sender.Send(command);
         

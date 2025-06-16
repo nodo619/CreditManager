@@ -8,6 +8,8 @@ public class CreditRequestDto
 
     public Guid CustomerId { get; set; }
 
+    public UserDto? Customer { get; set; } = null!;
+
     public decimal Amount { get; set; }
 
     public string CurrencyCode { get; set; } = null!;
@@ -29,6 +31,8 @@ public class CreditRequestDto
     public DateTime? ApprovalDate { get; set; }
 
     public Guid? ApprovedBy { get; set; }
+
+    public UserDto? Approver { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

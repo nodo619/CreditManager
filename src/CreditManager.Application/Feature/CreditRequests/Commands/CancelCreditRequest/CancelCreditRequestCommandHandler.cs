@@ -19,9 +19,6 @@ public class CancelCreditRequestCommandHandler : IRequestHandler<CancelCreditReq
 
     public async Task<Result<Unit>> Handle(CancelCreditRequestCommand request, CancellationToken cancellationToken)
     {
-        var s = 0;
-        var m = 1 / s;
-
         var creditRequest = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (creditRequest == null)
         {
