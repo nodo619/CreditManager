@@ -1,4 +1,3 @@
-using CreditManager.Application.Common.Models;
 using CreditManager.Application.Feature.CreditRequests.Commands.ApproveCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Commands.CancelCreditRequest;
 using CreditManager.Application.Feature.CreditRequests.Commands.CreateCreditRequest;
@@ -30,9 +29,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Guid>> CreateCreditRequest(
-        [FromBody] CreateCreditRequestCommand command)
+        [FromBody] CreateCreditRequestCommand command, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(command);
+        var result = await Sender.Send(command, cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -46,9 +45,9 @@ public class CreditRequestsController : ApiController
     [Authorize]
     [ProducesResponseType(typeof(CreditRequestDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<CreditRequestDto>> GetCreditRequest(Guid id)
+    public async Task<ActionResult<CreditRequestDto>> GetCreditRequest(Guid id, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(new GetCreditRequestQuery(id));
+        var result = await Sender.Send(new GetCreditRequestQuery(id), cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -63,9 +62,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(typeof(PaginatedList<CreditRequestDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginatedList<CreditRequestDto>>> GetCreditRequests(
-        [FromQuery] GetCreditRequestsQuery query)
+        [FromQuery] GetCreditRequestsQuery query, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(query);
+        var result = await Sender.Send(query, cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -80,9 +79,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(typeof(PaginatedList<CreditRequestDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PaginatedList<CreditRequestDto>>> GetCreditRequestsForCustomer(
-        [FromQuery] GetCreditRequestsForCustomerQuery query)
+        [FromQuery] GetCreditRequestsForCustomerQuery query, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(query);
+        var result = await Sender.Send(query, cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -97,9 +96,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> ApproveCreditRequest(Guid id)
+    public async Task<ActionResult> ApproveCreditRequest(Guid id, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(new ApproveCreditRequestCommand(id));
+        var result = await Sender.Send(new ApproveCreditRequestCommand(id), cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -114,9 +113,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> RejectCreditRequest(Guid id)
+    public async Task<ActionResult> RejectCreditRequest(Guid id, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(new RejectCreditRequestCommand(id));
+        var result = await Sender.Send(new RejectCreditRequestCommand(id), cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -131,9 +130,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CancelCreditRequest(Guid id)
+    public async Task<ActionResult> CancelCreditRequest(Guid id, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(new CancelCreditRequestCommand(id));
+        var result = await Sender.Send(new CancelCreditRequestCommand(id), cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -148,9 +147,9 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> SendCreditRequest(Guid id)
+    public async Task<ActionResult> SendCreditRequest(Guid id, CancellationToken cancellationToken)
     {
-        var result = await Sender.Send(new SendCreditRequestCommand(id));
+        var result = await Sender.Send(new SendCreditRequestCommand(id), cancellationToken);
         
         if (!result.IsSuccess)
         {
@@ -165,7 +164,7 @@ public class CreditRequestsController : ApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateCreditRequest(Guid id, [FromBody] UpdateCreditRequest request)
+    public async Task<ActionResult> UpdateCreditRequest(Guid id, [FromBody] UpdateCreditRequest request, CancellationToken cancellationToken)
     {
         var command = new UpdateCreditRequestCommand(
             Id: id,
@@ -178,7 +177,7 @@ public class CreditRequestsController : ApiController
             PeriodYears: request.PeriodYears
         );
 
-        var result = await Sender.Send(command);
+        var result = await Sender.Send(command, cancellationToken);
         
         if (!result.IsSuccess)
         {
